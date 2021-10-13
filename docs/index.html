@@ -4,37 +4,95 @@
 	<meta charset="utf-8"/>
 	<meta content="width=device-width,initial-scale=1" name="viewport"/>
 	<style>
-		body {
-			animation: bgColor 15s infinite linear;
-			font: min(70vh, 20vw, 200px)/90vh Arial;
-			text-align: center;
+		@property --hue {
+			syntax: '<number>';
+			inherits: false;
+			initial-value: 0;
 		}
+		
 		@keyframes bgColor {
+		  100% {
+			--hue: 360
+		  }
+		}
+		
+		@keyframes  orbit {
 		  0% {
-			background-color: #F44;
-		  }
-		  16.666% {
-			background-color: #FF4;
-		  }
-		  33.333% {
-			background-color: #4F4;
-		  }
-		  50% {
-			background-color: #4FF;
-		  }
-		  66.666% {
-			background-color: #44F;
-		  }
-		  83.333% {
-			background-color: #F4F;
+			transform:rotate(0deg) translate(10px) rotate(0deg);
 		  }
 		  100% {
-			background-color: #F44;
+			transform:rotate(360deg) translate(10px) rotate(-360deg);
 		  }
 		}
+		
+		body {
+			align-items: center;
+			animation: bgColor 30s infinite linear;
+			background: hsl(var(--hue), 100%, 75%);
+			color: white;
+			display: flex;
+			font: min(70vh, 20vw, 200px) Arial;
+			justify-content: center;
+			overflow: hidden;
+			overflow-wrap: anywhere;
+			text-align: center;
+		}
+		
+		body::before {
+			animation: orbit 30s linear infinite;
+			color: transparent;
+			content: attr(data-text);
+			overflow-wrap: anywhere;
+			position: absolute;
+			text-shadow: 0 0 5px rgba(0 0 0 / 50%);
+			z-index: -1;
+		}
+		
+		.dark {
+			background: hsl(var(--hue), 100%, 25%);
+			color: #ddd;
+		}
 	</style>
+	<script>	
+		window.addEventListener('load', function () {
+			var query = document.location.search + document.location.hash;
+			if(query && query.length > 1) {
+				var text = decodeURIComponent(query.substr(1));
+				document.body.innerHTML = text
+				document.body.dataset.text = text;
+			}
+		
+			var now = new Date();
+			var currentHour = now.getHours();
+			if(currentHour < 6 || currentHour > 20) {
+				setDarkMode();
+			} else {
+				setLightMode();
+			}
+			
+			function setDarkMode() {
+				document.body.classList.add("dark");
+			
+				var nextAvgSunriseTime = new Date();
+				var nowMs = nextAvgSunriseTime.getTime();
+				if(nextAvgSunriseTime.getHours() >= 6) {
+					nextAvgSunriseTime.setDate(nextAvgSunriseTime.getDate() + 1);
+				}
+				nextAvgSunriseTime.setHours(6,0,0,0);
+				setTimeout(setLightMode, nextAvgSunriseTime.getTime() - nowMs);
+			}
+			
+			function setLightMode() {
+				document.body.classList.remove("dark");
+			
+				var nextAvgSunsetTime = new Date();
+				var nowMs = nextAvgSunsetTime.getTime();
+				nextAvgSunsetTime.setHours(20,0,0,0);
+				console.log(nextAvgSunsetTime.getTime() - nowMs);
+				setTimeout(setDarkMode, nextAvgSunsetTime.getTime() - nowMs);
+			}
+		});
+	</script>
 </head>
-<body>
-	Ty chuju
-</body>
+<body data-text="Ty chuju">Ty chuju</body>
 </html>
