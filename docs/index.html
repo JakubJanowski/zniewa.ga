@@ -59,7 +59,7 @@
 			var query = document.location.search + document.location.hash;
 			if(query && query.length > 1) {
 				var text = decodeURIComponent(query.substr(1));
-				document.body.innerHTML = text
+				document.body.innerText = text
 				document.body.dataset.text = text;
 			}
 		
